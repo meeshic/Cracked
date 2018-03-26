@@ -1,3 +1,6 @@
+import java.util.List;
+import java.util.ArrayList;
+
 /*class TokenizerImpl
 {
 public:
@@ -45,22 +48,36 @@ class TokenizerImpl {
     String[] tokenize(String s){
         if(!formatted){
             separators = format(separators);
+            System.out.println("formatted sep string: " + separators);
             formatted = true;
         }
         
         s = s.trim();
+        return takeOutWhiteSpace(s.split(separators));
+    }
+    
+    private String[] takeOutWhiteSpace(String[] list){
+        List<String> result = new ArrayList<String>(list.length);
         
-        return s.split(separators);
+        for(String s : list){
+            if(s.trim().length() != 0)
+                result.add(s.toLowerCase());
+        }
+        
+        return result.toArray(new String[result.size()]);
     }
     
     private String format(String s){
         StringBuilder sb = new StringBuilder(s);
         
-        for(int i=0; i<sb.length(); i++){
-            if(isMeta(sb.charAt(i))){
-                sb.insert(i, "\\\\");
-                i+=2;
+        int insertIndex = 0;
+        for(int i=0; i<s.length(); i++){
+            if(isMeta(s.charAt(i))){
+                sb.insert(insertIndex, "\\");
+                System.out.println(insertIndex);
+                insertIndex++;;
             }
+            insertIndex++;
         }
         
         sb.insert(0, "[");
@@ -70,7 +87,8 @@ class TokenizerImpl {
     }
     
     private boolean isMeta(char c){
-        return (meta.find(c) != null) ? true : false;
+        //return (meta.find(c) != null) ? true : false;
+        return (c == '[' || c == '-' || c == '^' || c == ']');
     }
 }
 
