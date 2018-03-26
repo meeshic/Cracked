@@ -1,6 +1,7 @@
 import java.io.File;
 import java.util.Scanner;
 import java.io.FileNotFoundException;
+import java.lang.IllegalArgumentException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -80,7 +81,11 @@ class DictionaryImpl {
     // Find a group of English words in your dictionary that have the same letter pattern as the cipherWord, 
     // and which are consistent with the current English translation, curTranslation
     List<String> findPotentialCandidates(String cipherWord, String curTranslation){
-        // TODO: check format of both input strings
+        cipherWord = cipherWord.toLowerCase();
+        curTranslation = curTranslation.toLowerCase();
+        
+        if(cipherWord.matches(".*[^a-z'].*") || curTranslation.matches(".*[^a-z'?].*"))
+            throw new IllegalArgumentException("cipherWord or curTranslation is not in the correct format");
         
         String letterPattern = findLetterPattern(cipherWord);
         List<String> candidates = new LinkedList<String>();
@@ -89,7 +94,7 @@ class DictionaryImpl {
         if(patternDict.find(letterPattern) == null) return null;
         
         List<String> list = patternDict.find(letterPattern);
-        List<String> result = new ArrayList<String>();
+        List<String> result = new LinkedList<String>();
         for(String word : list){
             if(matchesCurTranslation(word, curTranslation))
                 result.add(word);
@@ -123,8 +128,3 @@ class DictionaryImpl {
         return sb.toString();
     }
 }
-
-/*
-The cipherWord parameter MUST only hold valid letters (a-z, or A-Z) and apostrophes, and 
-the curTranslation parameter MUST only hold valid letters, apostrophes and ? characters.
-*/
