@@ -91,7 +91,7 @@ class DecoderImpl{
             if(translator.pushMapping(mappings)){
                 // use partial translation table to translate entire message
                 String potential = translator.getTranslation(cipher);
-                int numValid = findValidWords(potential);
+                int numValid = numValidWords(potential);
                 // full valid translation found
                 if(numValid == tokens.length)
                     output.add(potential);
@@ -119,7 +119,7 @@ class DecoderImpl{
     }
     
     // Find number of valid words in cipher translation
-    private int findValidWords(String potential){
+    private int numValidWords(String potential){
         String[] sentence = tokenizer.tokenize(potential);
         int validWords = 0;
         
