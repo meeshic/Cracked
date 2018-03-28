@@ -15,7 +15,7 @@ Algorithm used:
 6c. If the translation is not valid, throw away current mapping.
 
 
-Class notes:
+**Class notes**:
 
 MyHash
 - Hash table implemented with arrays and non-built in linked lists.
@@ -37,6 +37,7 @@ DecoderImpl
 - Cracks encoded message and returns all valid translations
 
 
-Observations:
+
+*Observations*:
 - The output is of ALL valid English word translations which means the sentence itself could not be grammatically correct, 
   though containing all valid English words. So future work could consist of validating sentences using automata theory.
