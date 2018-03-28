@@ -13,6 +13,8 @@ private:
 };
 */
 
+// Note: You may assume that encrypted messages will never have any other characters, such as ? signs, @s, tabs, etc
+
 
 class DecoderImpl{
     private DictionaryImpl d;
@@ -28,79 +30,40 @@ class DecoderImpl{
     }
     
     boolean crack(String cipher, List<String> output){
-        System.out.println("start decoding");
         this.cipher = cipher;
         // start with an empty mapping
         translator = new TranslatorImpl();
         // tokenize encoded message into separate words
-        tokenizer = new TokenizerImpl(" ,.!");
+        tokenizer = new TokenizerImpl(" ,\";:.!()[]{}&^%$#-");
         tokens = tokenizer.tokenize(cipher);
-        System.out.println("print tokens:");
-        
-        for(String s : tokens)
-            System.out.println(s);
-        System.out.println("==============");
-        
-        
         seen = new boolean[tokens.length];
         
-        decodeMessage(seen, 0, output);
+        decodeMessage(0, output);
         
         return (output.size() != 0);
     }  
     
-    private int findNumEncrypted(String s){
-        String translated = translator.getTranslation(s);
-        int num = 0;
-        //System.out.println("num encrypted string:" + translated);
-        
-        for(int i=0; i<translated.length(); i++){
-            if(translated.charAt(i) == '?')
-                num++;
-        }
-        return num;
-    }
-    
-    private int findNextWord(boolean[] seen){
-        // find word that has not been chosen yet AND has most encrypted letters
+    // Find index of word that has not been chosen yet AND has most encrypted letters
+    private int findNextWord(){
         int maxLength = 0;
         int index = -1;
         for(int i=0; i<tokens.length; i++){
             int numEncrypted = findNumEncrypted(tokens[i]);
-            //System.out.println(tokens[i] + ":" + numEncrypted);
             if(!seen[i] && numEncrypted > maxLength){
                 maxLength = numEncrypted;
                 index = i;
             }
         }
-        //System.out.println("index of most encrypted:" + index);
         return index;
     }    
-        
-    private void printSeen(boolean[] seen){
-        for(int i=0; i<seen.length; i++){
-            if(seen[i])
-                System.out.println("seen " + tokens[i]);
-            else
-                System.out.println("not seen " + tokens[i]);
-        }
-        System.out.println();
-    }
     
-    private void decodeMessage(boolean[] seen, int valid, List<String> output){
-        int index = findNextWord(seen);
+    private void decodeMessage(int valid, List<String> output){
+        int index = findNextWord();
         String cipherWord = tokens[index];
-        System.out.println("--------------");
-        System.out.println();
-        System.out.println("picked next word:" + cipherWord);
         seen[index] = true;
-        
-        System.out.println("SEEN LIST");
-        printSeen(seen);
         
         // translate chosen word using current mapping table
         String partialDecode = translator.getTranslation(cipherWord);
-        System.out.println("current translation:" + partialDecode);
         
         // create a list of all valid English words that match
         List<String> matches = new ArrayList<String>(); 
@@ -109,15 +72,12 @@ class DecoderImpl{
         if(!d.findPotentialCandidates(cipherWord, partialDecode, matches)){
             seen[index] = false;
             translator.popMapping();
-            System.out.println("no matches in dictionary");
             return;
         }
-
-        int currValid = valid+1;
-        System.out.println("valid words:" + currValid);
         
+        // number of valid words needed in sentence to be a valid translation
+        int currValid = valid+1;
         for(String candidate : matches){
-            System.out.println("candidate:" + candidate);
             List<MappingPair> mappings = new ArrayList<MappingPair>();
             for(int i=0; i<candidate.length(); i++){
                 if(Character.isLetter(candidate.charAt(i))){
@@ -127,47 +87,46 @@ class DecoderImpl{
                     mappings.add(mp);
                 }
             }
-            
-            // what if empty mappings?
+
             if(translator.pushMapping(mappings)){
                 // use partial translation table to translate entire message
                 String potential = translator.getTranslation(cipher);
-                System.out.println("cipher translation:" + potential);
                 int numValid = findValidWords(potential);
-                System.out.println("num valid words in translation:" + numValid);
-                System.out.println("need " + currValid + " valid words");
                 // full valid translation found
-                System.out.println(tokens.length);
-                if(numValid == tokens.length){
+                if(numValid == tokens.length)
                     output.add(potential);
-                    System.out.println("********************************************");
-                    System.out.println("FOUND VALID TRANSLATION:" + potential);
-                    System.out.println("********************************************");
-                }
+                // potential valid translation found
                 else if(numValid >= currValid)
-                    decodeMessage(seen, numValid, output); 
-                else{
-                    System.out.println("did not work out");
-                }
+                    decodeMessage(numValid, output); 
+                
                 translator.popMapping();
             }
-            System.out.println("onto next candidate for " + cipherWord);
-            System.out.println("~~~~~~~~~~~~~");
         }
-       
-        System.out.println("````````````````````````");
-        System.out.println("finished checking word:" + tokens[index]);
-        System.out.println("````````````````````````");
         seen[index] = false;
         return;
     }
-
+    
+    // Find number of remaining encrypted letters in word
+    private int findNumEncrypted(String word){
+        String translated = translator.getTranslation(word);
+        int num = 0;
+        
+        for(int i=0; i<translated.length(); i++){
+            if(translated.charAt(i) == '?')
+                num++;
+        }
+        return num;
+    }
+    
+    // Find number of valid words in cipher translation
     private int findValidWords(String potential){
         String[] sentence = tokenizer.tokenize(potential);
         int validWords = 0;
         
         for(String word : sentence){
+            // Check if word is fully translated
             if(!word.matches(".*[?].*")){
+                // Check if word is in dictionary
                 if(!d.isValidWord(word))
                     return -1;
                 validWords++;
