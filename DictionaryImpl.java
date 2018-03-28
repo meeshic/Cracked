@@ -7,13 +7,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 /*
-You need to build a dictionary class which is used to load up the contents of an English dictionary 
-text file (basically a list of valid English words that we’ll provide) and allow the user to 
-efficiently search for words in that dictionary (e.g., “Is the word “onomatopoeia” in the 
-dictionary”, or “Give me a list of all words from the dictionary that follow the letter 
-pattern 122134, like ‘GOOGLE’ or ‘TOOTHY’”). Your DictionaryImpl class MUST use your MyHash 
-class to implement its data structures and MUST not use any STL container classes.
-
 The DictionaryImpl class is responsible for loading all of the words from our provided dictionary 
 and storing these words in a set of data structures which enable the class to be used to efficiently 
 look up words and word patterns:
@@ -56,7 +49,6 @@ class DictionaryImpl {
                 
                 String letterPattern = findLetterPattern(word);
                 List<String> list = new LinkedList<String>();
-                //System.out.println(word + ":" + letterPattern);
                 if(patternDict.find(letterPattern) != null)
                     list = patternDict.find(letterPattern);
                 
@@ -80,27 +72,26 @@ class DictionaryImpl {
     
     // Find a group of English words in your dictionary that have the same letter pattern as the cipherWord, 
     // and which are consistent with the current English translation, curTranslation
-    List<String> findPotentialCandidates(String cipherWord, String curTranslation){
+    boolean findPotentialCandidates(String cipherWord, String curTranslation, List<String> matches){
         cipherWord = cipherWord.toLowerCase();
         curTranslation = curTranslation.toLowerCase();
         
         if(cipherWord.matches(".*[^a-z'].*") || curTranslation.matches(".*[^a-z'?].*"))
-            throw new IllegalArgumentException("cipherWord or curTranslation is not in the correct format");
+            //throw new IllegalArgumentException("cipherWord or curTranslation is not in the correct format");
+            return false;
         
         String letterPattern = findLetterPattern(cipherWord);
         List<String> candidates = new LinkedList<String>();
         
         // No word with such letter pattern exists in dictionary
-        if(patternDict.find(letterPattern) == null) return null;
+        if(patternDict.find(letterPattern) == null) return false;
         
         List<String> list = patternDict.find(letterPattern);
-        List<String> result = new LinkedList<String>();
         for(String word : list){
             if(matchesCurTranslation(word, curTranslation))
-                result.add(word);
+                matches.add(word);
         }
-        
-        return (result.size() != 0) ? result : null;
+        return true;
     }
     
     
@@ -121,8 +112,12 @@ class DictionaryImpl {
             if(distinct.find(s.charAt(i)) != null)
                 sb.append(distinct.find(s.charAt(i)));
             else{
-                distinct.associate(s.charAt(i), num);
-                sb.append(num++);
+                if(Character.isLetter(s.charAt(i))){
+                    distinct.associate(s.charAt(i), num);
+                    sb.append(num++);
+                }
+                else
+                    sb.append(s.charAt(i));
             }
         }
         return sb.toString();
