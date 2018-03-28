@@ -15,19 +15,24 @@ Algorithm used:
 6c. If the translation is not valid, throw away current mapping.
 
 Class notes:
-1. MyHash
+
+MyHash
 - Hash table implemented with arrays and non-built in linked lists.
 - Chaining is used for collision resolution.
-2. TokenizerImpl
+
+TokenizerImpl
 - Tokenize sentence into list of words using given separator list ( ,\";:.!()[]{}&^%$#-)
 - tokenize(...): O(N+K), where N=length of string to split, K=regex pattern length
-3. DictionaryImpl
+
+DictionaryImpl
 - loadDictionary(dictFilePath): uses Java I/O operations to read contents of dictionary text file
 - findPotentialCandidates(...): O(Q), Q=# English words that match letter pattern of inputted cipher word. This is due to using
   letter patterns to index dictionary data.
-4. TranslatorImpl
+
+TranslatorImpl
 - A non-built in stack is used to keep track of valid mappings
-5. DecoderImpl
+
+DecoderImpl
 - Cracks encoded message and returns all valid translations
 
 Observations:
