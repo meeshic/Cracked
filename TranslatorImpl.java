@@ -3,14 +3,7 @@ import java.util.ArrayList;
 
 //The TranslatorImpl class is responsible for translating an encoded message into 
 // either a partially- or fully-decoded English version. 
-
 /*
-struct MappingPair
-{
-	char encryptedLetter;
-	char decryptedLetter;
-};
-
 class Translator
 {
 public:
@@ -48,10 +41,14 @@ class TranslatorImpl {
         // updating most recent mapping table
         MyHash<Character, Character> copy = new MyHash<Character, Character>();
         MyHash<Character, Character> top = stack.get(stack.size()-1);
+        // maps decrypted -> encrypted
+        MyHash<Character, Character> reverse = new MyHash<Character, Character>();
         
         for(int i=0; i<=26; i++){
             char c = (char) (i+97);
             copy.associate(c, top.find(c));
+            if(top.find(c) != untranslated)
+                reverse.associate(top.find(c), c);
         }
         
         for(MappingPair mp : mappings){
@@ -61,8 +58,9 @@ class TranslatorImpl {
             // Bad input
             if(!Character.isLetter(encrypted) || !Character.isLetter(decrypted)) 
                 return false;
-            // Inconsistent mapping
-            if(copy.find(encrypted) != untranslated)
+            
+            // Inconsistent mapping: mapping already exists or two letters map to same letter
+            if(copy.find(encrypted) != untranslated && (copy.find(encrypted) != decrypted || (reverse.find(decrypted) != null && reverse.find(decrypted) != encrypted)))
                 return false;
             
             copy.associate(encrypted, decrypted);
@@ -90,11 +88,13 @@ class TranslatorImpl {
             char encrypted = input.charAt(i);
             if(Character.isLetter(encrypted)){
                 char decrypted = transTable.find(Character.toLowerCase(encrypted));
+                // keep case of original input message
                 if(Character.isUpperCase(encrypted))
                     decrypted = Character.toUpperCase(decrypted);
                 sb.append(decrypted);
             }
             else
+                // non-letters are copied as is from original input message
                 sb.append(input.charAt(i));
         }
         return sb.toString();
