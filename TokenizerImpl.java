@@ -13,33 +13,9 @@ private:
 
 class TokenizerImpl {
     private String separators;
-    private static MyHash<Character, Integer> meta;
     private boolean formatted = false;
     
     // ( ) [ ] { { \ ^ $ | ? * + . < > - = !
-    
-    static{
-        meta = new MyHash<>();
-        meta.associate('(', 0);
-        meta.associate(')', 0);
-        meta.associate('[', 0);
-        meta.associate(']', 0);
-        meta.associate('{', 0);
-        meta.associate('}', 0);
-        meta.associate('\\', 0);
-        meta.associate('^', 0);
-        meta.associate('$', 0);
-        meta.associate('|', 0);
-        meta.associate('?', 0);
-        meta.associate('*', 0);
-        meta.associate('+', 0);
-        meta.associate('.', 0);
-        meta.associate('<', 0);
-        meta.associate('>', 0);
-        meta.associate('-', 0);
-        meta.associate('=', 0);
-        meta.associate('!', 0);
-    }
     
     TokenizerImpl(String separators){
         this.separators = separators;
@@ -48,15 +24,14 @@ class TokenizerImpl {
     String[] tokenize(String s){
         if(!formatted){
             separators = format(separators);
-            System.out.println("formatted sep string: " + separators);
             formatted = true;
         }
         
         s = s.trim();
-        return takeOutWhiteSpace(s.split(separators));
+        return removeWhiteSpace(s.split(separators));
     }
     
-    private String[] takeOutWhiteSpace(String[] list){
+    private String[] removeWhiteSpace(String[] list){
         List<String> result = new ArrayList<String>(list.length);
         
         for(String s : list){
@@ -74,7 +49,6 @@ class TokenizerImpl {
         for(int i=0; i<s.length(); i++){
             if(isMeta(s.charAt(i))){
                 sb.insert(insertIndex, "\\");
-                System.out.println(insertIndex);
                 insertIndex++;;
             }
             insertIndex++;
@@ -86,8 +60,8 @@ class TokenizerImpl {
         return sb.toString();
     }
     
+    // Checks for special meta characters that must be escaped
     private boolean isMeta(char c){
-        //return (meta.find(c) != null) ? true : false;
         return (c == '[' || c == '-' || c == '^' || c == ']');
     }
 }
