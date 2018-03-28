@@ -38,6 +38,5 @@ DecoderImpl
 
 
 
-*Observations*:
-- The output is of ALL valid English word translations which means the sentence itself could not be grammatically correct, 
-  though containing all valid English words. So future work could consist of validating sentences using automata theory.
+*Observation*:
+The output is of ALL valid English word translations which means the sentence itself could not be grammatically correct, though containing all valid English words. So future work could consist of validating sentences using automata theory.
