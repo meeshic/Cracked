@@ -14,6 +14,7 @@ Algorithm used:
 6b. If not completely translated but valid, recurse with current mapping to step 2.
 6c. If the translation is not valid, throw away current mapping.
 
+
 Class notes:
 
 MyHash
@@ -34,6 +35,7 @@ TranslatorImpl
 
 DecoderImpl
 - Cracks encoded message and returns all valid translations
+
 
 Observations:
 - The output is of ALL valid English word translations which means the sentence itself could not be grammatically correct, 
